@@ -80,21 +80,21 @@ function CalendarPage() {
         <MonthGrid
           cursor={cursor}
           activitiesByDate={activitiesByDate}
-          onSelect={(d) => { setSelectedDate(d); }}
-          onAddOnDay={(d) => setAddDate(d)}
+          onSelect={(d: string) => { setSelectedDate(d); }}
+          onAddOnDay={(d: string) => setAddDate(d)}
           dragId={dragId}
           setDragId={setDragId}
-          onDropOnDay={(d) => { if (dragId) { moveActivity(dragId, d); setDragId(null); } }}
+          onDropOnDay={(d: string) => { if (dragId) { moveActivity(dragId, d); setDragId(null); } }}
           selectedDate={selectedDate}
         />
       )}
 
       {view === "week" && (
-        <WeekStrip cursor={cursor} activitiesByDate={activitiesByDate} onSelect={setSelectedDate} selectedDate={selectedDate} onAddOnDay={(d) => setAddDate(d)} />
+        <WeekStrip cursor={cursor} activitiesByDate={activitiesByDate} onSelect={setSelectedDate} selectedDate={selectedDate} onAddOnDay={(d: string) => setAddDate(d)} />
       )}
 
       {view === "day" && (
-        <DayList date={format(cursor, "yyyy-MM-dd")} activitiesByDate={activitiesByDate} onAdd={(d) => setAddDate(d)} onToggle={toggleActivityComplete} onDelete={deleteActivity} />
+        <DayList date={format(cursor, "yyyy-MM-dd")} activitiesByDate={activitiesByDate} onAdd={(d: string) => setAddDate(d)} onToggle={toggleActivityComplete} onDelete={deleteActivity} />
       )}
 
       {/* Day detail panel for month/week */}
@@ -109,7 +109,8 @@ function CalendarPage() {
               <Plus className="h-4 w-4 mr-1" /> Aktivität
             </Button>
           </div>
-          <DayList date={selectedDate} activitiesByDate={activitiesByDate} onAdd={(d) => setAddDate(d)} onToggle={toggleActivityComplete} onDelete={deleteActivity} embedded />
+          <DayList date={selectedDate} activitiesByDate={activitiesByDate} onAdd={(d: string) => setAddDate(d)} onToggle={toggleActivityComplete} onDelete={deleteActivity} embedded />
+
         </div>
       )}
 
