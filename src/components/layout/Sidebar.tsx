@@ -3,14 +3,15 @@ import { LayoutDashboard, Calendar, Target, CheckCircle2, BarChart3, Settings, F
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
-const navItems = [
+type NavItem = { to: string; label: string; icon: typeof LayoutDashboard; exact?: boolean };
+const navItems: NavItem[] = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { to: "/calendar", label: "Kalender", icon: Calendar },
   { to: "/goals", label: "Ziele", icon: Target },
   { to: "/habits", label: "Habits", icon: CheckCircle2 },
   { to: "/stats", label: "Statistiken", icon: BarChart3 },
   { to: "/settings", label: "Einstellungen", icon: Settings },
-] as const;
+];
 
 export function Sidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
