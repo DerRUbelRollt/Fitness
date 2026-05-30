@@ -42,7 +42,7 @@ function GoalsPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {goals.map((g) => {
-          const progress = computeGoalProgress(g, activities);
+          const progress = services.goals.computeProgress(g, activities);
           const pct = Math.min(100, Math.round((progress / g.target) * 100));
           const done = pct >= 100;
           return (
