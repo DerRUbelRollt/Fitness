@@ -6,14 +6,7 @@
 // call delegates to a service, which talks to the IApiClient, which then
 // notifies React via a subscription.
 
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from "react";
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { getServices, todayISO } from "@/services";
 import type {
   CustomActivity,
@@ -36,7 +29,19 @@ interface StoreValue {
   goals: Goal[];
   habits: Habit[];
   userName: string;
+  userStreak: number;
+  userLongestStreak: number;
+  userStepsToday: number;
+  userStepsGoal: number;
+  userCalorieToday: number;
+  userCalorieGoal: number;
+  userMinutesGoal: number;
   setUserName: (n: string) => void;
+  setUserStepsToday: (steps: number) => void;
+  setUserStepsGoal: (steps: number) => void;
+  setUserCalorieToday: (cal: number) => void;
+  setUserCalorieGoal: (cal: number) => void;
+  setUserMinutesGoal: (min: number) => void;
   addActivity: (a: NewScheduledActivity) => void;
   updateActivity: (id: string, patch: Partial<ScheduledActivity>) => void;
   deleteActivity: (id: string) => void;
@@ -63,6 +68,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, [services]);
 
   const snapshot = services.api.snapshot();
+  const today = todayISO();
+
+  // Berechne heute's Schritte: User-Wert + Schritte aus Aktivitäten für heute
+  const stepsFromActivitiesToday = snapshot.activities
+    .filter((a) => a.date === today && a.steps)
+    .reduce((sum, a) => sum + (a.steps ?? 0), 0);
+  const totalStepsToday = (snapshot.user.stepsToday ?? 0) + stepsFromActivitiesToday;
 
   const value = useMemo<StoreValue>(
     () => ({
@@ -71,7 +83,19 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       goals: snapshot.goals,
       habits: snapshot.habits,
       userName: snapshot.user.name,
+      userStreak: snapshot.user.currentStreak ?? 0,
+      userLongestStreak: snapshot.user.longestStreak ?? 0,
+      userStepsToday: totalStepsToday,
+      userStepsGoal: snapshot.user.stepsGoal ?? 10000,
+      userCalorieToday: snapshot.user.calorieToday ?? 0,
+      userCalorieGoal: snapshot.user.calorieGoal ?? 700,
+      userMinutesGoal: snapshot.user.minutesGoal ?? 60,
       setUserName: (n) => services.user.setName(n),
+      setUserStepsToday: (steps) => services.user.setStepsToday(steps),
+      setUserStepsGoal: (steps) => services.user.setStepsGoal(steps),
+      setUserCalorieToday: (cal) => services.user.setCalorieToday(cal),
+      setUserCalorieGoal: (cal) => services.user.setCalorieGoal(cal),
+      setUserMinutesGoal: (min) => services.user.setMinutesGoal(min),
       addActivity: (a) => services.activities.create(a),
       updateActivity: (id, patch) => services.activities.update(id, patch),
       deleteActivity: (id) => services.activities.delete(id),
@@ -88,7 +112,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         services.api.reset();
       },
     }),
-    [services, snapshot],
+    [services, snapshot, today],
   );
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;

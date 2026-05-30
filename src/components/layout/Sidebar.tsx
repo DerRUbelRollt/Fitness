@@ -1,7 +1,16 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Calendar, Target, CheckCircle2, BarChart3, Settings, Flame } from "lucide-react";
+import {
+  LayoutDashboard,
+  Calendar,
+  Target,
+  CheckCircle2,
+  BarChart3,
+  Settings,
+  Flame,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useStore } from "@/lib/store";
 
 type NavItem = { to: string; label: string; icon: typeof LayoutDashboard; exact?: boolean };
 const navItems: NavItem[] = [
@@ -15,6 +24,7 @@ const navItems: NavItem[] = [
 
 export function Sidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { userStreak } = useStore();
 
   return (
     <aside className="hidden lg:flex sticky top-0 h-screen w-64 shrink-0 flex-col gap-2 border-r border-border/60 glass px-4 py-6">
@@ -39,7 +49,7 @@ export function Sidebar() {
               className={cn(
                 "relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
                 "text-muted-foreground hover:text-foreground hover:bg-accent/50",
-                active && "text-foreground"
+                active && "text-foreground",
               )}
             >
               {active && (
@@ -49,7 +59,9 @@ export function Sidebar() {
                   transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 />
               )}
-              <Icon className={cn("relative h-4.5 w-4.5 transition-colors", active && "text-primary")} />
+              <Icon
+                className={cn("relative h-4.5 w-4.5 transition-colors", active && "text-primary")}
+              />
               <span className="relative">{item.label}</span>
             </Link>
           );
@@ -58,7 +70,7 @@ export function Sidebar() {
 
       <div className="mt-auto rounded-2xl border border-border/60 bg-gradient-to-br from-primary/15 to-secondary/10 p-4">
         <div className="text-xs font-medium uppercase tracking-wider text-primary">Streak</div>
-        <div className="mt-1 text-2xl font-bold">12 Tage</div>
+        <div className="mt-1 text-2xl font-bold">{userStreak} Tage</div>
         <div className="mt-0.5 text-xs text-muted-foreground">Bleib am Ball, du bist stark!</div>
       </div>
     </aside>
@@ -81,7 +93,7 @@ export function BottomNav() {
               to={item.to}
               className={cn(
                 "flex flex-col items-center justify-center gap-1 py-3 text-[10px] font-medium transition-colors",
-                active ? "text-primary" : "text-muted-foreground"
+                active ? "text-primary" : "text-muted-foreground",
               )}
             >
               <Icon className={cn("h-5 w-5", active && "drop-shadow-[0_0_8px_currentColor]")} />

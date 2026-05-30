@@ -8,13 +8,25 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
-export function QuickAddDialog({ onClose, defaultDate }: { onClose: () => void; defaultDate?: string }) {
+export function QuickAddDialog({
+  onClose,
+  defaultDate,
+}: {
+  onClose: () => void;
+  defaultDate?: string;
+}) {
   const { addActivity, customActivities } = useStore();
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
   const [selectedCustom, setSelectedCustom] = useState<string | null>(null);
   const [date, setDate] = useState(defaultDate ?? todayISO());
   const [time, setTime] = useState("18:00");
   const [duration, setDuration] = useState(45);
+  const [distance, setDistance] = useState<number | null>(null);
+  const [steps, setSteps] = useState<number | null>(null);
+
+  const selectedPresetData = selectedPreset
+    ? ACTIVITY_PRESETS.find((p) => p.id === selectedPreset)
+    : null;
 
   const handleSubmit = () => {
     if (selectedPreset) {
@@ -27,8 +39,12 @@ export function QuickAddDialog({ onClose, defaultDate }: { onClose: () => void; 
         date,
         startTime: time,
         durationMin: duration,
+        distance: distance ?? undefined,
+        steps: steps ?? undefined,
       });
-      toast.success(`${preset.label} hinzugefügt`, { description: `${date} • ${time} • ${duration} min` });
+      toast.success(`${preset.label} hinzugefügt`, {
+        description: `${date} • ${time} • ${duration} min`,
+      });
       onClose();
       return;
     }
@@ -85,12 +101,23 @@ export function QuickAddDialog({ onClose, defaultDate }: { onClose: () => void; 
               return (
                 <button
                   key={p.id}
-                  onClick={() => { setSelectedPreset(p.id); setSelectedCustom(null); setDuration(p.defaultDurationMin); }}
+                  onClick={() => {
+                    setSelectedPreset(p.id);
+                    setSelectedCustom(null);
+                    setDuration(p.defaultDurationMin);
+                    setDistance(null);
+                    setSteps(null);
+                  }}
                   className={`group relative flex flex-col items-center gap-1.5 rounded-xl border p-3 transition-all ${
-                    active ? "border-primary bg-primary/10 shadow-glow" : "border-border/60 hover:border-border hover:bg-accent/30"
+                    active
+                      ? "border-primary bg-primary/10 shadow-glow"
+                      : "border-border/60 hover:border-border hover:bg-accent/30"
                   }`}
                 >
-                  <div className="grid h-9 w-9 place-items-center rounded-lg" style={{ backgroundColor: `${p.color}22`, color: p.color }}>
+                  <div
+                    className="grid h-9 w-9 place-items-center rounded-lg"
+                    style={{ backgroundColor: `${p.color}22`, color: p.color }}
+                  >
                     <Icon className="h-4.5 w-4.5" />
                   </div>
                   <span className="text-[11px] font-medium leading-tight">{p.label}</span>
@@ -101,18 +128,29 @@ export function QuickAddDialog({ onClose, defaultDate }: { onClose: () => void; 
 
           {customActivities.length > 0 && (
             <>
-              <Label className="mt-5 text-xs uppercase tracking-wider text-muted-foreground">Eigene</Label>
+              <Label className="mt-5 text-xs uppercase tracking-wider text-muted-foreground">
+                Eigene
+              </Label>
               <div className="mt-3 flex flex-wrap gap-2">
                 {customActivities.map((c) => {
                   const active = selectedCustom === c.id;
                   return (
                     <button
                       key={c.id}
-                      onClick={() => { setSelectedCustom(c.id); setSelectedPreset(null); }}
+                      onClick={() => {
+                        setSelectedCustom(c.id);
+                        setSelectedPreset(null);
+                      }}
                       className={`rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
-                        active ? "ring-2 ring-offset-2 ring-offset-background" : "opacity-80 hover:opacity-100"
+                        active
+                          ? "ring-2 ring-offset-2 ring-offset-background"
+                          : "opacity-80 hover:opacity-100"
                       }`}
-                      style={{ backgroundColor: `${c.color}22`, color: c.color, boxShadow: active ? `0 0 0 2px ${c.color}` : undefined }}
+                      style={{
+                        backgroundColor: `${c.color}22`,
+                        color: c.color,
+                        boxShadow: active ? `0 0 0 2px ${c.color}` : undefined,
+                      }}
                     >
                       {c.label}
                     </button>
@@ -125,22 +163,86 @@ export function QuickAddDialog({ onClose, defaultDate }: { onClose: () => void; 
 
         <div className="grid grid-cols-3 gap-3">
           <div>
-            <Label htmlFor="date" className="text-xs">Datum</Label>
-            <Input id="date" type="date" value={date} onChange={(e) => setDate(e.target.value)} className="mt-1" />
+            <Label htmlFor="date" className="text-xs">
+              Datum
+            </Label>
+            <Input
+              id="date"
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="mt-1"
+            />
           </div>
           <div>
-            <Label htmlFor="time" className="text-xs">Uhrzeit</Label>
-            <Input id="time" type="time" value={time} onChange={(e) => setTime(e.target.value)} className="mt-1" />
+            <Label htmlFor="time" className="text-xs">
+              Uhrzeit
+            </Label>
+            <Input
+              id="time"
+              type="time"
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
+              className="mt-1"
+            />
           </div>
           <div>
-            <Label htmlFor="dur" className="text-xs">Dauer (min)</Label>
-            <Input id="dur" type="number" value={duration} min={5} step={5} onChange={(e) => setDuration(parseInt(e.target.value || "0"))} className="mt-1" />
+            <Label htmlFor="dur" className="text-xs">
+              Dauer (min)
+            </Label>
+            <Input
+              id="dur"
+              type="number"
+              value={duration}
+              min={5}
+              step={5}
+              onChange={(e) => setDuration(parseInt(e.target.value || "0"))}
+              className="mt-1"
+            />
           </div>
         </div>
 
+        {selectedPresetData?.trackDistance && (
+          <div className="mt-3">
+            <Label htmlFor="dist" className="text-xs">
+              Strecke (km)
+            </Label>
+            <Input
+              id="dist"
+              type="number"
+              placeholder="0.0"
+              value={distance ?? ""}
+              onChange={(e) => setDistance(e.target.value ? parseFloat(e.target.value) : null)}
+              step={0.1}
+              className="mt-1"
+            />
+          </div>
+        )}
+
+        {selectedPresetData?.trackSteps && (
+          <div className="mt-3">
+            <Label htmlFor="steps" className="text-xs">
+              Schritte
+            </Label>
+            <Input
+              id="steps"
+              type="number"
+              placeholder="0"
+              value={steps ?? ""}
+              onChange={(e) => setSteps(e.target.value ? parseInt(e.target.value) : null)}
+              className="mt-1"
+            />
+          </div>
+        )}
+
         <div className="mt-6 flex justify-end gap-2">
-          <Button variant="ghost" onClick={onClose}>Abbrechen</Button>
-          <Button onClick={handleSubmit} className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-glow">
+          <Button variant="ghost" onClick={onClose}>
+            Abbrechen
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-glow"
+          >
             Hinzufügen
           </Button>
         </div>

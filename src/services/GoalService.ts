@@ -1,7 +1,7 @@
 import { parseISO, startOfWeek } from "date-fns";
 import type { IApiClient } from "./apiClient";
-import { uid } from "./apiClient";
-import type { Goal, NewGoal, ScheduledActivity } from "@/types/domain";
+import { uid, todayISO } from "./apiClient";
+import type { Goal, NewGoal, ScheduledActivity, UserProfile } from "@/types/domain";
 
 export class GoalService {
   constructor(private api: IApiClient) {}
@@ -21,7 +21,7 @@ export class GoalService {
   }
 
   /** Compute current progress for a goal based on completed activities. */
-  computeProgress(goal: Goal, activities: ScheduledActivity[]): number {
+  computeProgress(goal: Goal, activities: ScheduledActivity[], user?: UserProfile): number {
     const now = new Date();
     let start: Date;
     if (goal.period === "day") start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -40,8 +40,16 @@ export class GoalService {
       );
     });
 
+    // Spezialbehandlung für verschiedene Units
     if (goal.unit === "Minuten") return inRange.reduce((s, a) => s + a.durationMin, 0);
-    if (goal.unit === "Schritte") return Math.min(goal.target, Math.round(goal.target * 0.78));
+    if (goal.unit === "Schritte") {
+      // Summiere Steps aus Aktivitäten + manuell eingetragene Schritte vom Benutzer
+      const stepsFromActivities = inRange.reduce((s, a) => s + (a.steps ?? 0), 0);
+      const today = todayISO();
+      const userStepsToday = goal.period === "day" && user?.stepsToday ? user.stepsToday : 0;
+      return stepsFromActivities + userStepsToday;
+    }
+
     return inRange.length;
   }
 }

@@ -14,6 +14,8 @@ export interface ScheduledActivity {
   durationMin: number;
   completed: boolean;
   notes?: string;
+  distance?: number; // in km
+  steps?: number; // Schrittanzahl
 }
 
 export interface CustomActivity {
@@ -46,6 +48,14 @@ export interface Habit {
 
 export interface UserProfile {
   name: string;
+  currentStreak?: number;
+  longestStreak?: number;
+  lastActivityDate?: string;
+  stepsToday?: number;
+  stepsGoal?: number;
+  calorieToday?: number;
+  calorieGoal?: number;
+  minutesGoal?: number;
 }
 
 export interface ActivityPresetData {
@@ -54,10 +64,12 @@ export interface ActivityPresetData {
   iconId: string;
   color: string;
   defaultDurationMin: number;
+  trackDistance?: boolean; // für Lauf-Aktivitäten (km)
+  trackSteps?: boolean; // für Schritt-Aktivitäten
 }
 
 // Input DTOs (what UI passes to services when creating/updating)
-export type NewScheduledActivity = Omit<ScheduledActivity, "id" | "completed">;
+export type NewScheduledActivity = Omit<ScheduledActivity, "id" | "completed" | "distance" | "steps"> & { distance?: number; steps?: number; };
 export type NewCustomActivity = Omit<CustomActivity, "id">;
 export type NewGoal = Omit<Goal, "id" | "createdAt">;
 export type NewHabit = Omit<Habit, "id" | "createdAt" | "log">;
