@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Flame, Footprints, Clock, Target as TargetIcon, TrendingUp, Calendar as CalIcon, CheckCircle2, ChevronRight } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import { useStore, todayISO } from "@/lib/store";
+import { useStore, todayISO, useServices } from "@/lib/store";
 import { ProgressRing } from "@/components/ui/progress-ring";
 import { ActivityIcon } from "@/components/activity/ActivityIcon";
 import { format, parseISO, startOfWeek, addDays, isSameDay } from "date-fns";
@@ -30,6 +30,7 @@ const motivationalQuotes = [
 
 function Dashboard() {
   const { activities, userName, habits, goals, toggleActivityComplete } = useStore();
+  const services = useServices();
   const today = todayISO();
   const todayActivities = activities.filter((a) => a.date === today).sort((a, b) => (a.startTime ?? "").localeCompare(b.startTime ?? ""));
   const upcoming = activities.filter((a) => a.date >= today).slice(0, 6);
@@ -131,7 +132,7 @@ function Dashboard() {
           </div>
           <div className="space-y-3">
             {goals.slice(0, 4).map((g) => {
-              const progress = computeGoalProgress(g, activities);
+              const progress = services.goals.computeProgress(g, activities);
               const pct = Math.min(100, Math.round((progress / g.target) * 100));
               return (
                 <div key={g.id}>
@@ -211,19 +212,3 @@ function EmptyState({ text }: { text: string }) {
   return <div className="rounded-2xl border border-dashed border-border/60 bg-background/30 p-6 text-center text-sm text-muted-foreground">{text}</div>;
 }
 
-export function computeGoalProgress(g: import("@/lib/store").Goal, acts: import("@/lib/store").ScheduledActivity[]): number {
-  const now = new Date();
-  let start: Date;
-  if (g.period === "day") start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  else if (g.period === "week") start = startOfWeek(now, { weekStartsOn: 1 });
-  else start = new Date(now.getFullYear(), now.getMonth(), 1);
-
-  const inRange = acts.filter((a) => {
-    const d = parseISO(a.date);
-    return d >= start && d <= now && a.completed && (!g.activityFilter || a.presetId === g.activityFilter || a.customId === g.activityFilter);
-  });
-
-  if (g.unit === "Minuten") return inRange.reduce((s, a) => s + a.durationMin, 0);
-  if (g.unit === "Schritte") return Math.min(g.target, Math.round(g.target * 0.78)); // simulated
-  return inRange.length;
-}
