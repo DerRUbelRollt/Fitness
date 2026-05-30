@@ -1,6 +1,6 @@
-// Mock seed data used by the LocalStorageApiClient on first launch
-// and by the "Reset" action. In a real backend setup this would be
-// fetched from the server instead.
+// Mock seed data used as a fallback when the backend is unreachable
+// and by the "Reset" action. In normal operation data is fetched from
+// the REST backend via HttpApiClient.
 
 import type {
   ScheduledActivity,
