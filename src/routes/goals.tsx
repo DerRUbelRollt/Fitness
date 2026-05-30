@@ -2,13 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Plus, Target, Trash2 } from "lucide-react";
-import { useStore } from "@/lib/store";
+import { useStore, useServices } from "@/lib/store";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ACTIVITY_PRESETS } from "@/lib/activities";
-import { computeGoalProgress } from "./index";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/goals")({
@@ -18,6 +17,7 @@ export const Route = createFileRoute("/goals")({
 
 function GoalsPage() {
   const { goals, addGoal, deleteGoal, activities } = useStore();
+  const services = useServices();
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [target, setTarget] = useState(3);
@@ -42,7 +42,7 @@ function GoalsPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {goals.map((g) => {
-          const progress = computeGoalProgress(g, activities);
+          const progress = services.goals.computeProgress(g, activities);
           const pct = Math.min(100, Math.round((progress / g.target) * 100));
           const done = pct >= 100;
           return (
