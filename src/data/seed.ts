@@ -1,6 +1,6 @@
-// Mock seed data used by the LocalStorageApiClient on first launch
-// and by the "Reset" action. In a real backend setup this would be
-// fetched from the server instead.
+// Mock seed data used as a fallback when the backend is unreachable
+// and by the "Reset" action. In normal operation data is fetched from
+// the REST backend via HttpApiClient.
 
 import type {
   ScheduledActivity,
@@ -10,8 +10,10 @@ import type {
   UserProfile,
 } from "@/types/domain";
 
+let _seq = 0;
 function uid() {
-  return Math.random().toString(36).slice(2, 10);
+  _seq += 1;
+  return `seed-${_seq.toString(36)}`;
 }
 
 function iso(offset: number) {
@@ -48,16 +50,16 @@ export function buildSeedSnapshot(): SeedSnapshot {
     { id: uid(), title: "300 Min Sport / Woche", target: 300, unit: "Minuten", period: "week", createdAt: new Date().toISOString() },
   ];
 
-  const mkLog = (probability: number) => {
+  const mkLog = (skip: number) => {
     const log: Record<string, boolean> = {};
-    for (let i = 0; i < 45; i++) log[iso(-i)] = Math.random() > probability;
+    for (let i = 0; i < 45; i++) log[iso(-i)] = i % skip !== 0;
     return log;
   };
 
   const habits: Habit[] = [
-    { id: uid(), name: "2L Wasser trinken", emoji: "💧", color: "#38bdf8", createdAt: new Date().toISOString(), log: mkLog(0.25) },
-    { id: uid(), name: "8 Stunden Schlaf", emoji: "🌙", color: "#a78bfa", createdAt: new Date().toISOString(), log: mkLog(0.35) },
-    { id: uid(), name: "Stretching", emoji: "🧘", color: "#f0abfc", createdAt: new Date().toISOString(), log: mkLog(0.4) },
+    { id: uid(), name: "2L Wasser trinken", emoji: "💧", color: "#38bdf8", createdAt: new Date().toISOString(), log: mkLog(4) },
+    { id: uid(), name: "8 Stunden Schlaf", emoji: "🌙", color: "#a78bfa", createdAt: new Date().toISOString(), log: mkLog(3) },
+    { id: uid(), name: "Stretching", emoji: "🧘", color: "#f0abfc", createdAt: new Date().toISOString(), log: mkLog(5) },
     { id: uid(), name: "Kein Zucker", emoji: "🚫", color: "#fb7185", createdAt: new Date().toISOString(), log: {} },
   ];
 

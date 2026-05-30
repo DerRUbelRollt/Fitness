@@ -2,10 +2,11 @@
 //
 // A single IApiClient instance is shared by all services so that any
 // mutation triggers one notification to subscribers (the store/React).
-// To switch to a real HTTP backend, replace `LocalStorageApiClient`
-// with a `HttpApiClient` implementing the same `IApiClient` interface.
+// The concrete implementation is HttpApiClient — to point the app at a
+// different backend, set VITE_API_URL.
 
-import { LocalStorageApiClient, type IApiClient } from "./apiClient";
+import { type IApiClient } from "./apiClient";
+import { HttpApiClient } from "./HttpApiClient";
 import { ActivityService } from "./ActivityService";
 import { GoalService } from "./GoalService";
 import { HabitService } from "./HabitService";
@@ -27,7 +28,7 @@ let cached: Services | null = null;
 
 export function getServices(): Services {
   if (cached) return cached;
-  const api = new LocalStorageApiClient();
+  const api = new HttpApiClient();
   cached = {
     api,
     activities: new ActivityService(api),
