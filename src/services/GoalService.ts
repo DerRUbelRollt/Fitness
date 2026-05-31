@@ -43,11 +43,10 @@ export class GoalService {
     // Spezialbehandlung für verschiedene Units
     if (goal.unit === "Minuten") return inRange.reduce((s, a) => s + a.durationMin, 0);
     if (goal.unit === "Schritte") {
-      // Summiere Steps aus Aktivitäten + manuell eingetragene Schritte vom Benutzer
-      const stepsFromActivities = inRange.reduce((s, a) => s + (a.steps ?? 0), 0);
-      const today = todayISO();
-      const userStepsToday = goal.period === "day" && user?.stepsToday ? user.stepsToday : 0;
-      return stepsFromActivities + userStepsToday;
+      // Zähle nur Schritte aus Aktivitäten
+      // (user.stepsToday ist bereits kombiniert mit Aktivitäts-Schritten im Store,
+      // daher addieren wir es hier nicht nochmal, um Dopplung zu vermeiden)
+      return inRange.reduce((s, a) => s + (a.steps ?? 0), 0);
     }
 
     return inRange.length;

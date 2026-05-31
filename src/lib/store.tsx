@@ -70,9 +70,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const snapshot = services.api.snapshot();
   const today = todayISO();
 
-  // Berechne heute's Schritte: User-Wert + Schritte aus Aktivitäten für heute
+  // Berechne heute's Schritte: User-Wert + Schritte aus abgeschlossenen Aktivitäten für heute
   const stepsFromActivitiesToday = snapshot.activities
-    .filter((a) => a.date === today && a.steps)
+    .filter((a) => a.date === today && a.steps && a.completed)
     .reduce((sum, a) => sum + (a.steps ?? 0), 0);
   const totalStepsToday = (snapshot.user.stepsToday ?? 0) + stepsFromActivitiesToday;
 

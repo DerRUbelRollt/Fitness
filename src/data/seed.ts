@@ -54,7 +54,7 @@ export function buildSeedSnapshot(): SeedSnapshot {
       name: "Max Rubel", 
       currentStreak: 0,
       longestStreak: 0,
-      lastActivityDate: iso(0),
+      lastActivityDate: undefined,
       stepsToday: 0,
       stepsGoal: 10000,
       calorieToday: 0,

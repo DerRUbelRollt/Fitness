@@ -29,13 +29,14 @@ let cached: Services | null = null;
 export function getServices(): Services {
   if (cached) return cached;
   const api = new HttpApiClient();
+  const userService = new UserService(api);
   cached = {
     api,
-    activities: new ActivityService(api),
+    activities: new ActivityService(api, userService),
     goals: new GoalService(api),
     habits: new HabitService(api),
     customActivities: new CustomActivityService(api),
-    user: new UserService(api),
+    user: userService,
     presets: new PresetService(),
   };
   return cached;

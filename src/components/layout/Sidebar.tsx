@@ -25,6 +25,7 @@ const navItems: NavItem[] = [
 export function Sidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { userStreak } = useStore();
+  const { userLongestStreak } = useStore();
 
   return (
     <aside className="hidden lg:flex sticky top-0 h-screen w-64 shrink-0 flex-col gap-2 border-r border-border/60 glass px-4 py-6">
@@ -72,6 +73,12 @@ export function Sidebar() {
         <div className="text-xs font-medium uppercase tracking-wider text-primary">Streak</div>
         <div className="mt-1 text-2xl font-bold">{userStreak} Tage</div>
         <div className="mt-0.5 text-xs text-muted-foreground">Bleib am Ball, du bist stark!</div>
+        <div className="mt-0.5 text-m font-bold">
+          <span className="text-xs font-medium uppercase tracking-wider text-primary">
+            max Streak{" "}
+          </span>
+          {userLongestStreak} Tage
+        </div>
       </div>
     </aside>
   );
