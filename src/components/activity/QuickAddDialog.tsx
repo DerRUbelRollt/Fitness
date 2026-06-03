@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { X } from "lucide-react";
-import { ACTIVITY_PRESETS } from "@/lib/activities";
+import { ACTIVITY_PRESETS, COLOR_OPTIONS, ICON_OPTIONS } from "@/lib/activities";
 import { useStore, todayISO } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,7 +15,7 @@ export function QuickAddDialog({
   onClose: () => void;
   defaultDate?: string;
 }) {
-  const { addActivity, customActivities } = useStore();
+  const { addActivity, addCustomActivity, customActivities } = useStore();
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
   const [selectedCustom, setSelectedCustom] = useState<string | null>(null);
   const [date, setDate] = useState(defaultDate ?? todayISO());
@@ -23,10 +23,47 @@ export function QuickAddDialog({
   const [duration, setDuration] = useState(45);
   const [distance, setDistance] = useState<number | null>(null);
   const [steps, setSteps] = useState<number | null>(null);
+  const [isCreatingNew, setIsCreatingNew] = useState(false);
+  const [newActivityName, setNewActivityName] = useState("");
+  const [newActivityIcon, setNewActivityIcon] = useState("activity");
+  const [newActivityColor, setNewActivityColor] = useState(COLOR_OPTIONS[0]);
+  const [createdActivityName, setCreatedActivityName] = useState<string | null>(null);
+
+  // Beobachte customActivities und wähle die neu erstellte Aktivität aus
+  useEffect(() => {
+    if (createdActivityName) {
+      const created = customActivities.find(
+        (c) => c.label === createdActivityName && c.color === newActivityColor,
+      );
+      if (created) {
+        setSelectedCustom(created.id);
+        setCreatedActivityName(null);
+      }
+    }
+  }, [customActivities, createdActivityName, newActivityColor]);
 
   const selectedPresetData = selectedPreset
     ? ACTIVITY_PRESETS.find((p) => p.id === selectedPreset)
     : null;
+  const showDistance = selectedPresetData?.trackDistance;
+  const showSteps = selectedPresetData?.trackSteps;
+
+  const handleCreateNewActivity = () => {
+    if (!newActivityName.trim()) {
+      toast.error("Bitte einen Namen eingeben");
+      return;
+    }
+    const trimmedName = newActivityName.trim();
+    addCustomActivity({
+      label: trimmedName,
+      color: newActivityColor,
+      iconId: newActivityIcon,
+    });
+    setCreatedActivityName(trimmedName);
+    setIsCreatingNew(false);
+    setNewActivityName("");
+    toast.success(`${trimmedName} erstellt ✨`);
+  };
 
   const handleSubmit = () => {
     if (selectedPreset) {
@@ -59,7 +96,9 @@ export function QuickAddDialog({
         startTime: time,
         durationMin: duration,
       });
-      toast.success(`${c.label} hinzugefügt`);
+      toast.success(`${c.label} hinzugefügt`, {
+        description: `${date} • ${time} • ${duration} min`,
+      });
       onClose();
       return;
     }
@@ -107,6 +146,7 @@ export function QuickAddDialog({
                     setDuration(p.defaultDurationMin);
                     setDistance(null);
                     setSteps(null);
+                    setIsCreatingNew(false);
                   }}
                   className={`group relative flex flex-col items-center gap-1.5 rounded-xl border p-3 transition-all ${
                     active
@@ -140,6 +180,7 @@ export function QuickAddDialog({
                       onClick={() => {
                         setSelectedCustom(c.id);
                         setSelectedPreset(null);
+                        setIsCreatingNew(false);
                       }}
                       className={`rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
                         active
@@ -158,6 +199,94 @@ export function QuickAddDialog({
                 })}
               </div>
             </>
+          )}
+
+          {!isCreatingNew && (
+            <Button
+              variant="outline"
+              className="mt-5 w-full"
+              onClick={() => setIsCreatingNew(true)}
+            >
+              + Neue Aktivität
+            </Button>
+          )}
+
+          {isCreatingNew && (
+            <div className="mt-5 rounded-xl border border-border/60 bg-accent/20 p-4 space-y-4">
+              <div>
+                <Label htmlFor="new-name" className="text-xs">
+                  Name der Aktivität
+                </Label>
+                <Input
+                  id="new-name"
+                  placeholder="z.B. Boxen, Klettern..."
+                  value={newActivityName}
+                  onChange={(e) => setNewActivityName(e.target.value)}
+                  className="mt-1"
+                />
+              </div>
+
+              <div>
+                <Label className="text-xs mb-2 block">Icon</Label>
+                <div className="grid grid-cols-5 gap-2">
+                  {ICON_OPTIONS.map((opt) => {
+                    const Icon = opt.icon;
+                    const active = newActivityIcon === opt.id;
+                    return (
+                      <button
+                        key={opt.id}
+                        onClick={() => setNewActivityIcon(opt.id)}
+                        className={`flex items-center justify-center p-2 rounded-lg border transition-all ${
+                          active
+                            ? "border-primary bg-primary/10"
+                            : "border-border/60 hover:border-border"
+                        }`}
+                      >
+                        <Icon className="h-4 w-4" />
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <Label className="text-xs mb-2 block">Farbe</Label>
+                <div className="flex flex-wrap gap-2">
+                  {COLOR_OPTIONS.map((c) => (
+                    <button
+                      key={c}
+                      onClick={() => setNewActivityColor(c)}
+                      className="h-7 w-7 rounded-full ring-offset-2 ring-offset-background transition"
+                      style={{
+                        backgroundColor: c,
+                        boxShadow: newActivityColor === c ? `0 0 0 2px ${c}` : undefined,
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => {
+                    setIsCreatingNew(false);
+                    setNewActivityName("");
+                  }}
+                >
+                  Abbrechen
+                </Button>
+                <Button
+                  size="sm"
+                  className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
+                  onClick={handleCreateNewActivity}
+                >
+                  Erstellen
+                </Button>
+              </div>
+            </div>
           )}
         </div>
 
@@ -202,7 +331,7 @@ export function QuickAddDialog({
           </div>
         </div>
 
-        {selectedPresetData?.trackDistance && (
+        {showDistance && (
           <div className="mt-3">
             <Label htmlFor="dist" className="text-xs">
               Strecke (km)
@@ -219,7 +348,7 @@ export function QuickAddDialog({
           </div>
         )}
 
-        {selectedPresetData?.trackSteps && (
+        {showSteps && (
           <div className="mt-3">
             <Label htmlFor="steps" className="text-xs">
               Schritte

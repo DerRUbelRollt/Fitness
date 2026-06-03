@@ -1,0 +1,6 @@
+// Automatisch von EF Core generiert
+// Führe aus: dotnet ef migrations add InitialCreate
+// Danach: dotnet ef database update
+
+// Diese Datei wird automatisch erstellt, wenn du
+// die obigen Befehle ausführst.
