@@ -1,11 +1,21 @@
 #!/bin/bash
 # Setup und Start für das .NET Backend
 
-echo "=== Fitness API Backend Setup ==="
+echo "=== Fitness Setup ==="
 echo ""
 
-# Zu Projektverzeichnis navigieren
-cd "$(dirname "$0")/FitnessApi"
+#Zum Laufwerk navigieren
+D:
+
+# Zu Projektverzeichnis navigieren frontend
+cd D:\vsCode\Fitness
+
+echo Fronetend wird gestartet ...
+#Frontend starten
+npm run dev
+
+echo Backend wird gesatartet ...
+cd D:\vsCode\Fitness\Backend\FitnessApi
 
 echo "📦 Dependencies installieren..."
 dotnet restore
@@ -21,3 +31,4 @@ echo "   Swagger UI: http://localhost:5000/swagger"
 echo ""
 
 dotnet run
+

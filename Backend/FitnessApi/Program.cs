@@ -19,9 +19,12 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Add Entity Framework
+// Add Entity Framework with MySQL
 builder.Services.AddDbContext<FitnessDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseMySql(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))
+    ));
 
 // Register services
 builder.Services.AddScoped<IActivityService, ActivityService>();
@@ -44,11 +47,11 @@ using (var scope = app.Services.CreateScope())
     await db.Database.MigrateAsync();
 }
 
-if (app.Environment.IsDevelopment())
-{
+
+
     app.UseSwagger();
     app.UseSwaggerUI();
-}
+
 
 app.UseCors("AllowFrontend");
 
@@ -57,5 +60,4 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
-
 app.Run();

@@ -5,7 +5,7 @@ using FitnessApi.Services;
 namespace FitnessApi.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("user")]
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;

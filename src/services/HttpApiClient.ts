@@ -1,6 +1,6 @@
 // HTTP-backed implementation of IApiClient.
 //
-// Talks to a REST backend (e.g. a future Quarkus + PostgreSQL service)
+// Talks to a REST backend (e.g. a future Dotnet C# + PostgreSQL service)
 // over fetch. The base URL is configured via `VITE_API_URL`.
 //
 // Contract (per resource — activities, goals, habits, custom-activities):
