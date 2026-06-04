@@ -29,11 +29,6 @@ public class FitnessDbContext : DbContext
         // ScheduledActivity
         modelBuilder.Entity<ScheduledActivity>()
             .HasKey(a => a.Id);
-        modelBuilder.Entity<ScheduledActivity>()
-            .Property(a => a.Date)
-            .HasConversion(
-                v => v.ToUniversalTime(),
-                v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
 
         // CustomActivity
         modelBuilder.Entity<CustomActivity>()

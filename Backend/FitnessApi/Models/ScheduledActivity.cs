@@ -1,3 +1,6 @@
+using System.Text.Json.Serialization;
+using FitnessApi.Utilities;
+
 namespace FitnessApi.Models;
 
 public class ScheduledActivity
@@ -8,8 +11,13 @@ public class ScheduledActivity
     public string Title { get; set; } = string.Empty;
     public string Color { get; set; } = string.Empty;
     public string Icon { get; set; } = string.Empty;
-    public DateTime Date { get; set; }
-    public TimeSpan? StartTime { get; set; }
+    
+    [JsonConverter(typeof(DateOnlyJsonConverter))]
+    public string Date { get; set; } = string.Empty; // ISO YYYY-MM-DD
+    
+    [JsonConverter(typeof(TimeOnlyJsonConverter))]
+    public string? StartTime { get; set; } // HH:mm format
+    
     public int DurationMin { get; set; }
     public bool Completed { get; set; }
     public string? Notes { get; set; }
