@@ -26,7 +26,7 @@ export const Route = createFileRoute("/")({
 function greet() {
   const h = new Date().getHours();
   if (h < 11) return "Guten Morgen";
-  if (h < 17) return "Hallo";
+  if (h < 20) return "Hallo";
   return "Guten Abend";
 }
 
@@ -97,7 +97,7 @@ function Dashboard() {
           color="#4ade80"
           icon={<Footprints className="h-4 w-4" />}
           title="Schritte heute"
-          value={stepsToday.toLocaleString("de-DE")}
+          value={`${stepsToday.toLocaleString("de-DE")} Steps`}
           sub={`${Math.round((stepsToday / stepsGoal) * 100)}% des Tagesziels`}
           ring={
             <ProgressRing value={stepsToday} max={stepsGoal} color="#4ade80" sublabel="Schritte" />

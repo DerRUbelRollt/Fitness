@@ -54,7 +54,6 @@ interface StoreValue {
   addHabit: (h: NewHabit) => void;
   toggleHabit: (id: string, date: string) => void;
   deleteHabit: (id: string) => void;
-  resetAll: () => void;
 }
 
 const StoreContext = createContext<StoreValue | null>(null);
@@ -108,9 +107,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       addHabit: (h) => services.habits.create(h),
       toggleHabit: (id, date) => services.habits.toggle(id, date),
       deleteHabit: (id) => services.habits.delete(id),
-      resetAll: () => {
-        services.api.reset();
-      },
     }),
     [services, snapshot, today],
   );

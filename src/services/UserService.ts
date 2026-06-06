@@ -1,5 +1,6 @@
 import type { IApiClient } from "./apiClient";
 import type { UserProfile } from "@/types/domain";
+import { todayISO } from "@/lib/store";
 
 export class UserService {
   constructor(private api: IApiClient) {}
@@ -52,29 +53,23 @@ export class UserService {
    */
   updateStreak(today: string): void {
     const user = this.get();
-    const lastDate = user.lastActivityDate;
+    const lastDate = user.lastActivityDate ? user.lastActivityDate.slice(0, 10) : null;
     let newStreak = user.currentStreak ?? 0;
 
-    if (!lastDate) {
-      // First activity ever
-      newStreak = 1;
-    } else if (lastDate === today) {
+    if (lastDate === today) {
       // Already has activity today, no change
       return;
+      
     } else {
       // Check if last activity was yesterday
-      const lastDateObj = new Date(lastDate);
-      const todayObj = new Date(today);
-      const yesterday = new Date(todayObj);
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayISO = yesterday.toISOString().split("T")[0];
+      const yesterday = todayISO(-1)
 
-      if (lastDate === yesterdayISO) {
+      if (lastDate === yesterday) {
         // Consecutive day, increment
-        newStreak = (newStreak ?? 0) + 1;
+        newStreak = newStreak  + 1;
       } else {
-        // Gap in streak, reset to 1
-        newStreak = 1;
+        // Gap in streak, reset to 0
+        newStreak = 0;
       }
     }
 
