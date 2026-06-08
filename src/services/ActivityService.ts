@@ -34,6 +34,15 @@ export class ActivityService {
     const wasCompleted = activity.completed;
     const today = todayISO();
 
+    console.log("🔄 Toggle Activity:", {
+      id,
+      title: activity.title,
+      wasCompleted,
+      activityDate: activity.date,
+      today,
+      isTodaysActivity: activity.date === today,
+    });
+
     // Toggle the activity
     this.api.write(
       "activities",
@@ -42,6 +51,7 @@ export class ActivityService {
 
     // Update streak only when completing an activity for today
     if (!wasCompleted && activity.date === today) {
+      console.log("✅ Calling updateStreak for today:", today);
       this.userService.updateStreak(today);
     }
   }

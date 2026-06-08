@@ -184,6 +184,7 @@ function GoalsPage() {
                   onChange={(e) => setActivityFilter(e.target.value)}
                   className="mt-1 flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
                 >
+                  <option>Alle</option>
                   {ACTIVITY_PRESETS.map((p) => (
                     <option key={p.id} value={p.id}>
                       {p.label}
