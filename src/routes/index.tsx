@@ -9,6 +9,7 @@ import {
   Calendar as CalIcon,
   CheckCircle2,
   ChevronRight,
+  Settings,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useStore, todayISO, useServices } from "@/lib/store";
@@ -85,7 +86,16 @@ function Dashboard() {
 
   return (
     <div className="px-5 lg:px-10 py-6 lg:py-10 space-y-8 max-w-7xl mx-auto">
-      <PageHeader title={`${greet()}, ${userName} 👋`} subtitle={quote} />
+      <div className="flex items-start justify-between gap-4">
+        <PageHeader title={`${greet()}, ${userName} 👋`} subtitle={quote} />
+        <Link
+          to="/settings"
+          className="lg:hidden mt-2 p-2 rounded-lg hover:bg-accent transition-colors"
+          aria-label="Einstellungen"
+        >
+          <Settings className="h-6 w-6 text-muted-foreground hover:text-foreground" />
+        </Link>
+      </div>
 
       {/* Top ring stats */}
       <motion.div

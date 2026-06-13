@@ -24,6 +24,8 @@ function GoalsPage() {
   const [unit, setUnit] = useState("Einheiten");
   const [period, setPeriod] = useState<"day" | "week" | "month">("week");
   const [activityFilter, setActivityFilter] = useState<string>("");
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const goalToDelete = goals.find((g) => g.id === deleteConfirmId);
 
   const submit = () => {
     if (!title.trim()) return toast.error("Titel fehlt");
@@ -72,8 +74,8 @@ function GoalsPage() {
                   <Target className="h-5 w-5" />
                 </div>
                 <button
-                  onClick={() => deleteGoal(g.id)}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+                  onClick={() => setDeleteConfirmId(g.id)}
+                  className="text-muted-foreground hover:text-destructive transition-colors"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
@@ -114,6 +116,43 @@ function GoalsPage() {
           );
         })}
       </div>
+
+      {deleteConfirmId && goalToDelete && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="fixed inset-0 z-50 grid place-items-center bg-black/60 backdrop-blur-sm p-4"
+          onClick={() => setDeleteConfirmId(null)}
+        >
+          <motion.div
+            initial={{ scale: 0.96, y: 12 }}
+            animate={{ scale: 1, y: 0 }}
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-sm glass-strong rounded-3xl border border-border/60 p-6 shadow-elevated"
+          >
+            <h3 className="text-xl font-semibold mb-2">Ziel löschen?</h3>
+            <p className="text-sm text-muted-foreground mb-6">
+              Möchtest du das Ziel <strong>"{goalToDelete.title}"</strong> wirklich löschen? Diese
+              Aktion kann nicht rückgängig gemacht werden.
+            </p>
+            <div className="flex justify-end gap-2">
+              <Button variant="ghost" onClick={() => setDeleteConfirmId(null)}>
+                Abbrechen
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  deleteGoal(deleteConfirmId);
+                  setDeleteConfirmId(null);
+                  toast.success("Ziel gelöscht");
+                }}
+              >
+                Löschen
+              </Button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
 
       {open && (
         <motion.div
